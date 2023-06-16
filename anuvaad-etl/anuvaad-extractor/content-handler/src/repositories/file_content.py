@@ -150,6 +150,7 @@ class FileContentRepositories:
     def update(self, record_id,user_id, blocks, workflowCode, modifiedSentences=None):
         updated_blocks  = []
         saved_blocks    = []
+        old_blocks = []
         update_s0       = False
 
         '''
@@ -168,15 +169,17 @@ class FileContentRepositories:
             for updated_block in updated_blocks:
                 AppContext.addRecordID(record_id)
                 log_info("FileContentUpdateRepo -updating blocks", AppContext.getContext())
-                if self.blockModel.update_block(record_id,user_id, updated_block['data']['block_identifier'], updated_block) == False:
-                    return False, saved_blocks
+                update_sts, old_block = self.blockModel.update_block(record_id,user_id, updated_block['data']['block_identifier'], updated_block)
+                if update_sts == False:
+                    return False, saved_blocks, None
                 AppContext.addRecordID(record_id)
                 log_info("FileContentUpdateRepo -fetching back updated blocks", AppContext.getContext())
                 saved_block_results = self.blockModel.get_block_by_block_identifier(record_id,user_id, updated_block['data']['block_identifier'])
+                old_blocks.append(old_block)
                 for saved_block in saved_block_results:
                     saved_blocks.append(saved_block['data'][0])
                 log_info("FileContentUpdateRepo -updated blocks ",AppContext.getContext())
-        return True, saved_blocks
+        return True, saved_blocks, old_blocks
 
     def store_reference(self,records):
         

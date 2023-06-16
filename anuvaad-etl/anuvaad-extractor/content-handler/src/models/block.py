@@ -26,12 +26,16 @@ class BlockModel(object):
     def update_block(self, record_id, user_id, block_identifier, block):
         try:
             collections = get_db()[DB_SCHEMA_NAME]
+            old_block = collections.find_one({'$and': [{'record_id': record_id}, {'created_by': user_id}, { 'block_identifier': block_identifier }]})
+            if old_block is not None:
+                old_block = old_block['data']
+            
             results     = collections.update({'$and': [{'record_id': record_id}, {'created_by': user_id}, { 'block_identifier': block_identifier }]},
             { '$set': block }, upsert=True)
 
             if 'writeError' in list(results.keys()):
-                return False
-            return True
+                return False, None
+            return True, old_block
 
         except Exception as e:
             log_exception("db connection exception ",  AppContext.getContext(), e)

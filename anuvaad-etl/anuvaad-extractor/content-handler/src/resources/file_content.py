@@ -116,7 +116,7 @@ class FileContentUpdateResource(Resource):
 
         log_info("FileContentUpdateResource for user ({}), \nto update ({}) blocks, \nmodified sentences: {}, \nworkflowCode: {}".format(user_id, len(blocks),modifiedSentences,workflowCode), AppContext.getContext())
         try:
-            result, updated_blocks  = fileContentRepo.update(record_id,user_id, blocks, workflowCode, modifiedSentences)
+            result, updated_blocks, old_blocks  = fileContentRepo.update(record_id,user_id, blocks, workflowCode, modifiedSentences)
 
             if result == False:
                 res = CustomResponse(Status.ERR_GLOBAL_MISSING_PARAMETERS.value, None)
@@ -125,7 +125,8 @@ class FileContentUpdateResource(Resource):
             log_info("FileContentUpdateResource for user ({}) updated".format(user_id), AppContext.getContext())
             response = {
                 'blocks': updated_blocks,
-                'workflowCode': workflowCode
+                'workflowCode': workflowCode,
+                'old_blocks': old_blocks,
             }
             res = CustomResponse(Status.SUCCESS.value, response, len(updated_blocks))
             return res.getres()            
