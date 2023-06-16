@@ -128,6 +128,7 @@ class FileContentUpdateResource(Resource):
                 'workflowCode': workflowCode,
                 'old_blocks': old_blocks,
             }
+            log_info(f"FileContentUpdateResource for user ({user_id}) response is {response}", AppContext.getContext())
             res = CustomResponse(Status.SUCCESS.value, response, len(updated_blocks))
             return res.getres()            
         except Exception as e:
